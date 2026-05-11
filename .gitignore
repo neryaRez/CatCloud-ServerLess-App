@@ -1,0 +1,5 @@
+response.json
+*.log
+*.tmp
+*.bak
+*.swp

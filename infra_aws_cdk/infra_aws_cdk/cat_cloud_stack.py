@@ -35,6 +35,17 @@ class CatCloudStack(Stack):
             auto_delete_objects=True,
         )
 
+        s3_deployment.BucketDeployment(
+            self,
+            "DeployCatImages",
+            sources=
+            [
+                s3_deployment.Source.asset("../CatImages_deploy")
+            ],
+            destination_bucket=catcloud_bucket,
+            destination_key_prefix="cat-images",
+        )
+
         catcloud_topic = sns.Topic(
             self,
             "CatCloudTopic",
@@ -110,4 +121,11 @@ class CatCloudStack(Stack):
             "CatCloudLambdaRoleArn",
             value=catcloud_lambda_role.role_arn,
             description="ARN of the IAM role attached to the CatCloud Lambda function",
+        )
+
+        CfnOutput(
+            self,
+            "CatCloudImagesPrefix",
+            value="cat-images/",
+            description="S3 prefix where CatCloud images are uploaded during deployment",
         )    

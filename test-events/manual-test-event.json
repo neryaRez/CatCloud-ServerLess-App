@@ -1,0 +1,5 @@
+{
+  "triggeredBy": "manual-test",
+  "source": "aws-cli",
+  "message": "Manual CatCloud Lambda invocation test"
+}
