@@ -286,6 +286,34 @@ cat > /tmp/catcloud-github-oidc-permissions-policy.json <<EOF
       }
     },
     {
+     "Sid": "AllowPassingCdkExecutionRoleToCloudFormation",
+     "Effect": "Allow",
+     "Action": [
+      "iam:PassRole"
+    ],
+    "Resource": [
+      "arn:aws:iam::${AWS_ACCOUNT_ID}:role/cdk-hnb659fds-cfn-exec-role-${AWS_ACCOUNT_ID}-${AWS_REGION}"
+    ],
+    "Condition": {
+      "StringEquals": {
+        "iam:PassedToService": "cloudformation.amazonaws.com"
+      }
+     }
+    },
+    {
+    "Sid": "AllowAssumingCdkBootstrapRoles",
+    "Effect": "Allow",
+    "Action": [
+        "sts:AssumeRole"
+    ],
+    "Resource": [
+        "arn:aws:iam::${AWS_ACCOUNT_ID}:role/cdk-hnb659fds-deploy-role-${AWS_ACCOUNT_ID}-${AWS_REGION}",
+        "arn:aws:iam::${AWS_ACCOUNT_ID}:role/cdk-hnb659fds-file-publishing-role-${AWS_ACCOUNT_ID}-${AWS_REGION}",
+        "arn:aws:iam::${AWS_ACCOUNT_ID}:role/cdk-hnb659fds-image-publishing-role-${AWS_ACCOUNT_ID}-${AWS_REGION}",
+        "arn:aws:iam::${AWS_ACCOUNT_ID}:role/cdk-hnb659fds-lookup-role-${AWS_ACCOUNT_ID}-${AWS_REGION}"
+    ]
+    },
+    {
       "Sid": "LogsManageCatCloudLogGroups",
       "Effect": "Allow",
       "Action": [
@@ -338,9 +366,9 @@ echo
 echo "Secret value:"
 echo "$ROLE_ARN"
 echo
-echo "Also add this secret:"
+echo "Also add this GitHub Actions variable:"
 echo
-echo "Secret name:"
+echo "Variable name:"
 echo "AWS_REGION"
 echo
 echo "Secret value:"
