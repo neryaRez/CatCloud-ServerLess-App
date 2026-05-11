@@ -19,6 +19,7 @@ fi
 export AWS_REGION
 export AWS_DEFAULT_REGION="$AWS_REGION"
 echo "AWS Region: $AWS_REGION"
+echo
 
 read -p "Enter your notification email: " EMAIL
 
@@ -83,6 +84,7 @@ echo "Getting S3 bucket name from CloudFormation outputs..."
 
 BUCKET_NAME=$(aws cloudformation describe-stacks \
   --stack-name CatCloudStack \
+  --region "$AWS_REGION" \
   --query "Stacks[0].Outputs[?OutputKey=='CatCloudBucketName'].OutputValue" \
   --output text)
 
@@ -97,7 +99,7 @@ echo
 echo "Waiting for S3 bucket to be ready..."
 
 for i in {1..12}; do
-  if aws s3api head-bucket --bucket "$BUCKET_NAME" >/dev/null 2>&1; then
+  if aws s3api head-bucket --bucket "$BUCKET_NAME" --region "$AWS_REGION" >/dev/null 2>&1; then
     echo "Bucket is ready ✅"
     break
   fi
@@ -115,11 +117,12 @@ echo
 echo "Uploading local sample files to S3 using AWS CLI..."
 
 aws s3 sync "$PROJECT_ROOT/sample_files/" "s3://$BUCKET_NAME/cat-images/" \
+  --region "$AWS_REGION" \
   --delete
 
 echo
 echo "Uploaded files:"
-aws s3 ls "s3://$BUCKET_NAME/cat-images/"
+aws s3 ls "s3://$BUCKET_NAME/cat-images/" --region "$AWS_REGION"
 cd "$PROJECT_ROOT"
 
 echo
@@ -131,5 +134,5 @@ echo "Important:"
 echo "Check your email and confirm the SNS subscription."
 echo "If you do not see it, check Spam / Promotions."
 echo
-echo "After confirming the email, run:"
+echo "After confirming the SNS email subscription, run:"
 echo "./manual_lambda_test.sh"
