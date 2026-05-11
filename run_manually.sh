@@ -8,6 +8,18 @@ echo "🐱 CatCloud Manual Deployment"
 echo "======================================"
 echo
 
+export AWS_PAGER=""
+
+AWS_REGION=$(aws configure get region)
+
+if [ -z "$AWS_REGION" ]; then
+  AWS_REGION="us-east-1"
+fi
+
+export AWS_REGION
+export AWS_DEFAULT_REGION="$AWS_REGION"
+echo "AWS Region: $AWS_REGION"
+
 read -p "Enter your notification email: " EMAIL
 
 if [ -z "$EMAIL" ]; then
