@@ -100,9 +100,9 @@ for i in {1..12}; do
 done
 
 echo
-echo "Uploading local files to S3 using AWS CLI..."
+echo "Uploading local sample files to S3 using AWS CLI..."
 
-aws s3 sync "$PROJECT_ROOT/CatImages_deploy/" "s3://$BUCKET_NAME/cat-images/" \
+aws s3 sync "$PROJECT_ROOT/sample_files/" "s3://$BUCKET_NAME/cat-images/" \
   --delete
 
 echo
