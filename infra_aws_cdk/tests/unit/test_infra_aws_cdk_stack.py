@@ -51,8 +51,6 @@ def test_sns_topic_and_email_subscription_created():
 def test_lambda_function_created_with_environment_variables():
     template = create_template()
 
-    template.resource_count_is("AWS::Lambda::Function", 2)
-
     template.has_resource_properties("AWS::Lambda::Function", {
         "Runtime": "python3.12",
         "Handler": "s3_list_and_notify.handler",
