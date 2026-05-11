@@ -3,11 +3,9 @@ from aws_cdk import (
     Duration,
     RemovalPolicy,
     Stack,
-    Tags,
     aws_iam as iam,
     aws_lambda as lambda_,
     aws_s3 as s3,
-    aws_s3_deployment as s3_deployment,
     aws_sns as sns,
     aws_sns_subscriptions as sns_subscriptions,
 )
@@ -33,17 +31,6 @@ class CatCloudStack(Stack):
             versioned=False,
             removal_policy=RemovalPolicy.DESTROY,
             auto_delete_objects=True,
-        )
-
-        s3_deployment.BucketDeployment(
-            self,
-            "DeployCatImages",
-            sources=
-            [
-                s3_deployment.Source.asset("../CatImages_deploy")
-            ],
-            destination_bucket=catcloud_bucket,
-            destination_key_prefix="cat-images",
         )
 
         catcloud_topic = sns.Topic(
@@ -127,5 +114,5 @@ class CatCloudStack(Stack):
             self,
             "CatCloudImagesPrefix",
             value="cat-images/",
-            description="S3 prefix where CatCloud images are uploaded during deployment",
-        )    
+            description="S3 prefix where local sample files are uploaded by run_manually.sh",
+        )
