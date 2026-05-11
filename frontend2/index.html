@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CatCloud Serverless App</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <main class="app-shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">AWS Serverless DevOps Assignment</p>
+        <h1>CatCloud Serverless App 🐱</h1>
+        <p>
+          Upload sample cat files to S3 during deployment, list bucket objects with Lambda,
+          and send SNS email notifications on every manual execution.
+        </p>
+      </div>
+
+      <div class="hero-badge">
+        <span>IaC</span>
+        <strong>CDK / Lambda / S3 / SNS</strong>
+      </div>
+    </section>
+
+    <section class="layout">
+      <article class="card upload-card">
+        <div class="card-header">
+          <div>
+            <p class="section-label">Local Preview</p>
+            <h2>Drag & Drop your cat image</h2>
+          </div>
+          <span class="pill">Static UI Demo</span>
+        </div>
+
+        <label class="drop-zone" id="dropZone">
+          <input id="fileInput" type="file" accept="image/*" hidden />
+          <div id="emptyState">
+            <div class="cat-icon">🐈</div>
+            <h3>Drop image here</h3>
+            <p>or click to browse locally</p>
+          </div>
+          <img id="previewImage" class="preview hidden" alt="Selected cat preview" />
+        </label>
+
+        <div class="operations">
+          <button class="operation active" data-operation="original">Original</button>
+          <button class="operation" data-operation="flip">Flip</button>
+          <button class="operation" data-operation="mirror">Mirror</button>
+          <button class="operation" data-operation="grayscale">Grayscale</button>
+        </div>
+
+        <div class="note">
+          This visual preview is intentionally local and static. The real deployment uploads
+          files from <code>sample_files/</code> to S3 using the CI/CD deployment process.
+        </div>
+      </article>
+
+      <aside class="card system-card">
+        <p class="section-label">System Status</p>
+        <h2>Serverless Resources</h2>
+
+        <div class="status-list">
+          <div class="status-item">
+            <span class="status-dot"></span>
+            <div>
+              <strong>S3 Bucket</strong>
+              <p>Stores sample cat files uploaded during deployment.</p>
+            </div>
+          </div>
+
+          <div class="status-item">
+            <span class="status-dot"></span>
+            <div>
+              <strong>Lambda Scanner</strong>
+              <p>Lists all S3 objects and prepares execution details.</p>
+            </div>
+          </div>
+
+          <div class="status-item">
+            <span class="status-dot"></span>
+            <div>
+              <strong>SNS Topic</strong>
+              <p>Sends email notification after every Lambda execution.</p>
+            </div>
+          </div>
+
+          <div class="status-item">
+            <span class="status-dot"></span>
+            <div>
+              <strong>GitHub Actions</strong>
+              <p>Deploys infrastructure through workflow_dispatch.</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="grid-3">
+      <article class="info-card">
+        <span class="big-icon">📦</span>
+        <h3>Sample Files Upload</h3>
+        <p>
+          The deployment uploads local files from <code>sample_files/</code> into the S3 bucket.
+        </p>
+      </article>
+
+      <article class="info-card">
+        <span class="big-icon">⚡</span>
+        <h3>Manual Lambda Trigger</h3>
+        <p>
+          The Lambda can be tested manually using the included AWS CLI script.
+        </p>
+      </article>
+
+      <article class="info-card">
+        <span class="big-icon">📧</span>
+        <h3>Email Notification</h3>
+        <p>
+          SNS sends an email with bucket object details after each Lambda execution.
+        </p>
+      </article>
+    </section>
+
+    <section class="layout bottom-layout">
+      <article class="card">
+        <div class="card-header">
+          <div>
+            <p class="section-label">Bucket Objects</p>
+            <h2>Expected S3 Content</h2>
+          </div>
+          <span class="pill green">Uploaded by deployment</span>
+        </div>
+
+        <div class="file-list">
+          <div class="file-row">
+            <span>🐱</span>
+            <code>sample_files/cat_1.txt</code>
+          </div>
+          <div class="file-row">
+            <span>🐱</span>
+            <code>sample_files/cat_2.txt</code>
+          </div>
+          <div class="file-row">
+            <span>📝</span>
+            <code>sample_files/cat_gallery_info.json</code>
+          </div>
+        </div>
+      </article>
+
+      <article class="card command-card">
+        <div class="card-header">
+          <div>
+            <p class="section-label">Manual Test</p>
+            <h2>Invoke Lambda</h2>
+          </div>
+          <button id="copyCommand" class="copy-btn">Copy</button>
+        </div>
+
+        <pre><code id="commandText">aws lambda invoke \
+  --function-name &lt;LambdaFunctionName&gt; \
+  --cli-binary-format raw-in-base64-out \
+  --payload file://test-events/manual-test-event.json \
+  response.json
+
+cat response.json</code></pre>
+
+        <p class="small-text">
+          After invocation, check the configured email inbox for the SNS notification.
+          The SNS email subscription must be confirmed after first deployment.
+        </p>
+      </article>
+    </section>
+
+    <section class="architecture">
+      <p class="section-label">Architecture Flow</p>
+      <div class="flow">
+        <div>GitHub Actions</div>
+        <span>→</span>
+        <div>CDK Deploy</div>
+        <span>→</span>
+        <div>S3 sample_files</div>
+        <span>→</span>
+        <div>Lambda List Objects</div>
+        <span>→</span>
+        <div>SNS Email</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
