@@ -101,7 +101,7 @@ StatusCode: 200
 
 The main deployment path is **GitHub Actions with OIDC**.
 
-This local option is provided only as a fallback for quick manual testing, or for reviewers who prefer to validate the CDK stack without configuring GitHub Actions and OIDC.
+This local option is provided only for quick manual testing.
 
 It deploys the same CDK stack from a local machine using the AWS credentials already configured in the local AWS CLI.
 
@@ -120,7 +120,7 @@ chmod +x optional/deploy_local.sh
 ./optional/deploy_local.sh
 ```
 
-This is **not** the primary CI/CD deployment method. It is only a convenience path for local validation.
+This is **not** the primary CI/CD deployment method. It is used only for local validation.
 
 [Back to Deployment Options](#deployment-options)
 
