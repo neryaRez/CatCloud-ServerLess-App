@@ -10,16 +10,13 @@ The recommended deployment path is automated with AWS CDK and GitHub Actions. Gi
 
 ## Deployment Options
 
-This project can be deployed in two ways:
+The recommended and primary deployment method is [GitHub Actions with OIDC](#quick-start-github-actions-with-oidc).
 
-| Option | Purpose | Recommended for |
-|---|---|---|
-| [**GitHub Actions with OIDC**](#quick-start-github-actions-with-oidc) | Full automated CI/CD deployment without stored AWS access keys | Primary assignment flow |
-| [**Local deployment without OIDC**](#optional-local-deployment-without-oidc) | Manual deployment from a local machine using existing AWS CLI credentials | Quick reviewer testing or local validation |
+This flow demonstrates the full CI/CD process for the assignment: GitHub Actions authenticates to AWS using OIDC, deploys the CDK stack, uploads sample files, and invokes the Lambda function for verification.
 
-The **recommended and primary deployment method** is [GitHub Actions with OIDC](#quick-start-github-actions-with-oidc).
+For quick manual validation, the project also includes an [Optional Local Deployment Without OIDC](#optional-local-deployment-without-oidc).
 
-For quick manual validation, reviewers can also use the [Optional Local Deployment Without OIDC](#optional-local-deployment-without-oidc) section.
+The local option deploys the same CDK stack from a local machine using existing AWS CLI credentials. It is provided only as a convenience path for local testing or reviewer validation, and it is not the primary CI/CD deployment method.
 
 ---
 
