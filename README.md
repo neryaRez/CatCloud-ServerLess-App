@@ -6,15 +6,9 @@ The project was built for a DevOps Student home assignment and focuses on secure
 
 ---
 
-## Key Highlights
+CatCloud demonstrates a complete serverless DevOps workflow: infrastructure is defined with AWS CDK, deployed through GitHub Actions, and verified after deployment by invoking the Lambda function.
 
-- **GitHub Actions CI/CD** with manual `workflow_dispatch`
-- **GitHub OIDC authentication** instead of long-lived AWS keys
-- **AWS CDK Infrastructure as Code**
-- **Private S3 bucket** for uploaded cat images
-- **Least-privilege Lambda IAM role**
-- **Manual Lambda verification** with AWS CLI
-- **SNS email notification** with required email confirmation
+The deployment uses GitHub OIDC, so no long-lived AWS access keys are stored in GitHub. The stack creates a private S3 bucket, uploads sample cat images during deployment, deploys a Python Lambda function with least-privilege IAM permissions, and sends execution summaries through SNS email notifications.
 
 ---
 
@@ -112,6 +106,21 @@ CatCloud-ServerLess-App/
 
 ---
 
+## GitHub OIDC
+
+This project does **not** store AWS access keys in GitHub.
+
+`create_github_oidc.sh` creates or updates:
+
+- GitHub OIDC provider in AWS
+- IAM role for GitHub Actions
+- Trust policy restricted to the selected repository and branch
+- Permissions required for CDK deployment
+
+The GitHub Actions workflow assumes this role using OIDC.
+
+---
+
 ## What Gets Deployed
 
 The CDK stack creates:
@@ -128,21 +137,6 @@ During deployment, files from `sample_files/` are uploaded to:
 ```text
 s3://<created-bucket>/cat-images/
 ```
-
----
-
-## GitHub OIDC
-
-This project does **not** store AWS access keys in GitHub.
-
-`create_github_oidc.sh` creates or updates:
-
-- GitHub OIDC provider in AWS
-- IAM role for GitHub Actions
-- Trust policy restricted to the selected repository and branch
-- Permissions required for CDK deployment
-
-The GitHub Actions workflow assumes this role using OIDC.
 
 ---
 
