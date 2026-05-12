@@ -225,4 +225,4 @@ Developed by **Nerya Reznikovich**.
 
 Focused on software development, AWS cloud infrastructure, and automation workflows.
 
-This project was built as part of a DevOps Student home assignment, with an emphasis on Infrastructure as Code, GitHub Actions CI/CD, least-privilege IAM, and OIDC-based authentication.
+This project was built as part of a DevOps Student home assignment, with an emphasis on Infrastructure as Code, secure AWS deployment, least-privilege IAM, and automated delivery workflows.
