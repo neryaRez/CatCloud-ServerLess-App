@@ -16,7 +16,7 @@ This flow demonstrates the full CI/CD process for the assignment: GitHub Actions
 
 For quick manual validation, the project also includes an [Optional Local Deployment Without OIDC](#optional-local-deployment-without-oidc).
 
-The local option deploys the same CDK stack from a local machine using existing AWS CLI credentials. It is provided only as a convenience path for local testing or reviewer validation, and it is not the primary CI/CD deployment method.
+The local option deploys the same CDK stack from a local machine using existing AWS CLI credentials.
 
 ---
 
