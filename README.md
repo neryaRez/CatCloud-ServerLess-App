@@ -1,14 +1,10 @@
 # CatCloud Serverless App
 
-CatCloud is a small serverless platform for uploading sample cat images to a private S3 bucket, scanning the bucket with Lambda, and sending an email summary through SNS.
+CatCloud is a small serverless platform built for a DevOps Student home assignment.
 
-The project was built for a DevOps Student home assignment and focuses on secure, automated AWS deployment.
+It uploads sample cat images to a private S3 bucket during deployment, invokes a Python Lambda function to scan the bucket, and sends an execution summary through SNS email notifications.
 
----
-
-CatCloud demonstrates a complete serverless DevOps workflow: infrastructure is defined with AWS CDK, deployed through GitHub Actions, and verified after deployment by invoking the Lambda function.
-
-The deployment uses GitHub OIDC, so no long-lived AWS access keys are stored in GitHub. The stack creates a private S3 bucket, uploads sample cat images during deployment, deploys a Python Lambda function with least-privilege IAM permissions, and sends execution summaries through SNS email notifications.
+The deployment is automated with AWS CDK and GitHub Actions. GitHub authenticates to AWS using OIDC, so no long-lived AWS access keys are stored in the repository.
 
 ---
 
@@ -121,25 +117,6 @@ The GitHub Actions workflow assumes this role using OIDC.
 
 ---
 
-## What Gets Deployed
-
-The CDK stack creates:
-
-- Private S3 bucket
-- SNS topic
-- SNS email subscription
-- Python Lambda function
-- Lambda execution IAM role
-- S3 read/list, SNS publish, and CloudWatch Logs permissions
-
-During deployment, files from `sample_files/` are uploaded to:
-
-```text
-s3://<created-bucket>/cat-images/
-```
-
----
-
 ## GitHub Actions Workflow
 
 The main deployment file is:
@@ -173,7 +150,6 @@ If the confirmation email is missing, check Spam or Promotions.
 
 ---
 
-
 ## Example Email Summary
 
 The SNS email includes a short scan summary:
@@ -201,7 +177,6 @@ Uploaded cat images:
 - **Testing:** Pytest, AWS CLI
 
 ---
-
 
 ## Optional Local Deployment
 
@@ -244,17 +219,10 @@ The `notification_email` context is required because the CDK app validates it du
 
 ---
 
-## Requirement Mapping
+## Author
 
-| Requirement | Implementation |
-|---|---|
-| Infrastructure as Code | AWS CDK |
-| CI/CD | GitHub Actions with `workflow_dispatch` |
-| Secure AWS authentication | GitHub OIDC |
-| S3 bucket | Created by CDK |
-| Upload local files | GitHub Actions uploads `sample_files/` |
-| Lambda lists S3 objects | `lambda/s3_list_and_notify.py` |
-| SNS email notification | Lambda publishes to SNS |
-| Least-privilege IAM | CDK-defined Lambda role |
-| Manual Lambda trigger | `manual_lambda_test.sh` |
-| Test event | `test-events/manual-test-event.json` |
+Developed by **Nerya Reznikovich**.
+
+Focused on software development, AWS cloud infrastructure, and automation workflows.
+
+This project was built as part of a DevOps Student home assignment, with an emphasis on Infrastructure as Code, GitHub Actions CI/CD, least-privilege IAM, and OIDC-based authentication.
