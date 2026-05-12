@@ -80,21 +80,6 @@ After the first deployment, AWS SNS sends a confirmation email.
 
 The recipient must click **Confirm subscription** before notification emails can be delivered.
 
-### 5. Run manual Lambda test
-
-After confirming the SNS subscription:
-
-```bash
-chmod +x manual_lambda_test.sh
-./manual_lambda_test.sh
-```
-
-Expected result:
-
-```text
-StatusCode: 200
-```
-
 ---
 
 ## Optional Local Deployment Without OIDC
@@ -123,6 +108,25 @@ chmod +x optional/deploy_local.sh
 This is **not** the primary CI/CD deployment method. It is used only for local validation.
 
 [Back to Deployment Options](#deployment-options)
+
+---
+
+## Manual Lambda Test
+
+After deploying the stack and confirming the SNS subscription, you can manually invoke the Lambda function:
+
+```bash
+chmod +x manual_lambda_test.sh
+./manual_lambda_test.sh
+```
+
+Expected result:
+
+```text
+StatusCode: 200
+```
+
+This test can be used after either GitHub Actions deployment or local deployment.
 
 ---
 
