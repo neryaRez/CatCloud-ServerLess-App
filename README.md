@@ -1,47 +1,90 @@
 # CatCloud Serverless App
 
-CatCloud is an AWS serverless application built for a DevOps Student home assignment.
+CatCloud is a small serverless platform for uploading sample cat images to a private S3 bucket, scanning the bucket with Lambda, and sending an email summary through SNS.
 
-It deploys a Python Lambda function that lists objects in an S3 bucket and sends execution details through SNS email notifications.
+The project was built for a DevOps Student home assignment and focuses on:
 
-The main deployment method is **GitHub Actions with OIDC**.
+- Infrastructure as Code with AWS CDK
+- GitHub Actions deployment with OIDC
+- No long-lived AWS keys stored in GitHub
+- Least-privilege IAM for the Lambda function
+- Manual Lambda verification with AWS CLI
 
 ---
 
 ## Quick Start
 
-1. Create the GitHub OIDC role:
+### 1. Create the GitHub OIDC role
+
+Run once from the project root:
 
 ```bash
 chmod +x create_github_oidc.sh
 ./create_github_oidc.sh
 ```
 
-2. Add the printed role ARN to GitHub repository secrets:
+The script prints an IAM role ARN similar to:
+
+```text
+arn:aws:iam::<ACCOUNT_ID>:role/CatCloudGitHubActionsDeployRole
+```
+
+Copy this ARN.
+
+### 2. Add GitHub configuration
+
+In the GitHub repository, go to:
+
+```text
+Settings -> Secrets and variables -> Actions
+```
+
+Add a repository secret:
 
 ```text
 AWS_ROLE_TO_ASSUME = arn:aws:iam::<ACCOUNT_ID>:role/CatCloudGitHubActionsDeployRole
 ```
 
-3. Add the AWS region to GitHub repository variables:
+Add a repository variable:
 
 ```text
 AWS_REGION = us-east-1
 ```
 
-4. Run the GitHub Actions workflow:
+### 3. Run the deployment workflow
+
+Go to:
 
 ```text
 Actions -> Deploy CatCloud -> Run workflow
 ```
 
-5. Confirm the SNS email subscription.
+Use:
 
-6. Run the manual Lambda test:
+```text
+notification_email: your-email@example.com
+invoke_lambda_after_deploy: true
+```
+
+### 4. Confirm SNS email subscription
+
+After the first deployment, AWS SNS sends a confirmation email.
+
+Click **Confirm subscription** before expecting notification emails.
+
+### 5. Run the manual Lambda test
+
+After confirming SNS, run:
 
 ```bash
 chmod +x manual_lambda_test.sh
 ./manual_lambda_test.sh
+```
+
+Expected result:
+
+```text
+StatusCode: 200
 ```
 
 ---
@@ -50,29 +93,59 @@ chmod +x manual_lambda_test.sh
 
 ```text
 GitHub Actions
-  -> OIDC authentication
-  -> AWS CDK deployment
-  -> S3 bucket + Lambda + SNS
+  -> GitHub OIDC
+  -> AWS IAM Role
+  -> AWS CDK Deployment
+  -> S3 + Lambda + SNS
   -> Upload sample_files/ to S3
   -> Invoke Lambda
-  -> Lambda lists S3 objects
-  -> SNS sends email notification
+  -> Email summary through SNS
+```
+
+---
+
+## What the App Does
+
+During deployment:
+
+- CDK creates the AWS infrastructure.
+- `sample_files/` is uploaded to the S3 bucket under `cat-images/`.
+- The workflow invokes the Lambda function for verification.
+
+During Lambda execution:
+
+- Lambda lists the S3 objects.
+- Lambda builds an execution summary.
+- Lambda publishes the summary to SNS.
+- SNS sends the email notification after subscription confirmation.
+
+---
+
+## Example Email Summary
+
+The SNS email includes a short scan summary similar to:
+
+```text
+CatCloud Scan Completed
+
+Bucket name: <created-bucket>
+Images found: 3
+
+Uploaded cat images:
+1. cat-images/cat1.jpg
+2. cat-images/cat2.jpeg
+3. cat-images/cat3.jpg
 ```
 
 ---
 
 ## Tech Stack
 
-- AWS CDK v2
-- Python 3.12
-- AWS Lambda
-- Amazon S3
-- Amazon SNS
-- AWS IAM
-- GitHub Actions
-- GitHub OIDC
-- AWS CLI
-- Pytest
+- **Infrastructure:** AWS CDK v2
+- **Runtime:** Python 3.12, AWS Lambda
+- **AWS services:** S3, SNS, IAM, CloudFormation
+- **CI/CD:** GitHub Actions with OIDC
+- **Testing and CLI:** Pytest, AWS CLI
 
 ---
 
@@ -93,113 +166,54 @@ CatCloud-ServerLess-App/
 
 ---
 
-## What Gets Deployed
-
-The CDK stack creates:
-
-- Private S3 bucket
-- SNS topic
-- SNS email subscription
-- Python Lambda function
-- Lambda execution IAM role
-- Least-privilege permissions for:
-  - S3 read/list
-  - SNS publish
-  - CloudWatch Logs
-
-During deployment, files from `sample_files/` are uploaded to:
-
-```text
-s3://<created-bucket>/cat-images/
-```
-
----
-
 ## GitHub Actions Deployment
 
-The main workflow is:
+The main deployment file is:
 
 ```text
 .github/workflows/deploy.yml
 ```
 
-It is triggered manually with `workflow_dispatch`.
+The workflow is triggered manually with `workflow_dispatch`.
 
-The workflow:
+It performs:
 
-1. Authenticates to AWS using GitHub OIDC
-2. Installs dependencies
-3. Runs unit tests
-4. Runs `cdk synth`
-5. Deploys the CDK stack
-6. Uploads `sample_files/` to S3
-7. Lists the uploaded files
-8. Invokes the Lambda for verification
+1. AWS authentication through GitHub OIDC
+2. Dependency installation
+3. Unit tests
+4. `cdk synth`
+5. CDK deployment
+6. Upload of `sample_files/` to S3
+7. Lambda invocation for verification
 
-A successful run should show:
-
-```text
-StatusCode: 200
-```
+This is the primary deployment path for the assignment.
 
 ---
 
-## GitHub OIDC Setup
+## GitHub OIDC
 
-This project does not store AWS access keys in GitHub.
+This project does not use long-lived AWS access keys in GitHub.
 
-Run:
-
-```bash
-./create_github_oidc.sh
-```
-
-The script creates or updates:
+`create_github_oidc.sh` creates or updates:
 
 - GitHub OIDC provider in AWS
 - IAM role for GitHub Actions
 - Trust policy restricted to the selected repository and branch
-- Deployment permissions required by CDK
+- Permissions required for CDK deployment
 
-At the end, copy the printed role ARN.
-
-Then configure GitHub:
-
-```text
-Repository -> Settings -> Secrets and variables -> Actions
-```
-
-Add Repository Secret:
-
-```text
-Name:  AWS_ROLE_TO_ASSUME
-Value: arn:aws:iam::<ACCOUNT_ID>:role/CatCloudGitHubActionsDeployRole
-```
-
-Add Repository Variable:
-
-```text
-Name:  AWS_REGION
-Value: us-east-1
-```
-
----
-
-## SNS Email Confirmation
-
-SNS email subscriptions require manual confirmation.
-
-After the first deployment, AWS sends a confirmation email to the provided address.
-
-Click **Confirm subscription** before expecting notification emails.
-
-The Lambda may run successfully before confirmation, but SNS email delivery starts only after confirmation.
+The GitHub workflow then assumes this role using OIDC.
 
 ---
 
 ## Manual Lambda Test
 
-Run from the project root:
+The manual test script is:
+
+```text
+manual_lambda_test.sh
+```
+
+Run:
 
 ```bash
 ./manual_lambda_test.sh
@@ -211,18 +225,10 @@ Optional explicit usage:
 ./manual_lambda_test.sh CatCloudStack us-east-1
 ```
 
-The script reads the Lambda name from CloudFormation outputs, invokes it with:
+The script reads the Lambda function name from CloudFormation outputs and invokes it with:
 
 ```text
 test-events/manual-test-event.json
-```
-
-and prints the response.
-
-Expected result:
-
-```text
-StatusCode: 200
 ```
 
 ---
@@ -231,14 +237,14 @@ StatusCode: 200
 
 The main deployment path is GitHub Actions.
 
-For local testing only:
+For local testing only, a convenience script is provided:
 
 ```bash
 chmod +x optional/deploy_local.sh
 ./optional/deploy_local.sh
 ```
 
-This deploys the same CDK stack from a local machine using local AWS CLI credentials.
+This script deploys the same CDK stack from a local machine using local AWS CLI credentials.
 
 It is not the primary CI/CD deployment method.
 
@@ -259,8 +265,8 @@ The `notification_email` context is required because the CDK app validates it du
 
 ## Security Notes
 
-- GitHub Actions uses OIDC instead of long-lived AWS keys.
-- The OIDC role is restricted to the selected GitHub repository and branch.
+- GitHub Actions uses OIDC instead of stored AWS keys.
+- The OIDC role is restricted to the selected repository and branch.
 - The Lambda role uses least-privilege permissions.
 - The S3 bucket is private.
 - S3 public access is blocked.
@@ -272,12 +278,13 @@ The `notification_email` context is required because the CDK app validates it du
 
 | Requirement | Implementation |
 |---|---|
-| IaC | AWS CDK |
-| GitHub Actions CI/CD | `.github/workflows/deploy.yml` |
+| Infrastructure as Code | AWS CDK |
+| CI/CD | GitHub Actions with `workflow_dispatch` |
+| Secure AWS auth | GitHub OIDC |
+| S3 bucket | Created by CDK |
+| Local files uploaded during deployment | `sample_files/` uploaded by workflow |
 | Lambda lists S3 objects | `lambda/s3_list_and_notify.py` |
 | SNS email notification | Lambda publishes to SNS |
-| S3 bucket | Created by CDK |
-| Upload local files | GitHub Actions uploads `sample_files/` |
-| Least-privilege IAM | CDK Lambda role |
+| Least-privilege IAM | CDK-defined Lambda role |
 | Manual Lambda trigger | `manual_lambda_test.sh` |
 | Test event | `test-events/manual-test-event.json` |
