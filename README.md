@@ -4,11 +4,26 @@ CatCloud is a small serverless platform built for a DevOps Student home assignme
 
 It uploads sample cat images to a private S3 bucket during deployment, invokes a Python Lambda function to scan the bucket, and sends an execution summary through SNS email notifications.
 
-The deployment is automated with AWS CDK and GitHub Actions. GitHub authenticates to AWS using OIDC, so no long-lived AWS access keys are stored in the repository.
+The recommended deployment path is automated with AWS CDK and GitHub Actions. GitHub authenticates to AWS using OIDC, so no long-lived AWS access keys are stored in the repository.
 
 ---
 
-## Quick Start
+## Deployment Options
+
+This project can be deployed in two ways:
+
+| Option | Purpose | Recommended for |
+|---|---|---|
+| [**GitHub Actions with OIDC**](#quick-start-github-actions-with-oidc) | Full automated CI/CD deployment without stored AWS access keys | Primary assignment flow |
+| [**Local deployment without OIDC**](#optional-local-deployment-without-oidc) | Manual deployment from a local machine using existing AWS CLI credentials | Quick reviewer testing or local validation |
+
+The **recommended and primary deployment method** is [GitHub Actions with OIDC](#quick-start-github-actions-with-oidc).
+
+For quick manual validation, reviewers can also use the [Optional Local Deployment Without OIDC](#optional-local-deployment-without-oidc) section.
+
+---
+
+## Quick Start: GitHub Actions with OIDC
 
 ### 1. Create the GitHub OIDC role
 
@@ -85,6 +100,35 @@ StatusCode: 200
 
 ---
 
+## Optional Local Deployment Without OIDC
+
+The main deployment path is **GitHub Actions with OIDC**.
+
+This local option is provided only as a fallback for quick manual testing, or for reviewers who prefer to validate the CDK stack without configuring GitHub Actions and OIDC.
+
+It deploys the same CDK stack from a local machine using the AWS credentials already configured in the local AWS CLI.
+
+### Prerequisites
+
+Before running the local deployment, verify that your AWS CLI is authenticated to the target AWS account:
+
+```bash
+aws sts get-caller-identity
+```
+
+Then run:
+
+```bash
+chmod +x optional/deploy_local.sh
+./optional/deploy_local.sh
+```
+
+This is **not** the primary CI/CD deployment method. It is only a convenience path for local validation.
+
+[Back to Deployment Options](#deployment-options)
+
+---
+
 ## Repository Structure
 
 ```text
@@ -114,6 +158,10 @@ This project does **not** store AWS access keys in GitHub.
 - Permissions required for CDK deployment
 
 The GitHub Actions workflow assumes this role using OIDC.
+
+The setup script is safe to run even if the GitHub OIDC provider does not already exist in the AWS account. It checks for an existing GitHub OIDC provider and creates one if needed.
+
+The first setup requires AWS permissions to manage IAM OIDC providers, IAM roles, and IAM policies.
 
 ---
 
@@ -178,23 +226,6 @@ Uploaded cat images:
 
 ---
 
-## Optional Local Deployment
-
-The main deployment path is GitHub Actions.
-
-For local testing only:
-
-```bash
-chmod +x optional/deploy_local.sh
-./optional/deploy_local.sh
-```
-
-This deploys the same CDK stack from a local machine using local AWS CLI credentials.
-
-It is not the primary CI/CD deployment method.
-
----
-
 ## Cleanup
 
 Destroy the stack:
@@ -216,6 +247,7 @@ The `notification_email` context is required because the CDK app validates it du
 - The S3 bucket is private.
 - S3 public access is blocked.
 - No AWS credentials are committed to the repository.
+- Local deployment uses credentials from the reviewer's local AWS CLI configuration and does not require committing or storing AWS keys in the repository.
 
 ---
 
